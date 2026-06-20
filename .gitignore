@@ -11,3 +11,4 @@ venv/
 *.log
 data/sample_deal/*
 !data/sample_deal/.gitkeep
+p4.md
