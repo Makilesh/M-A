@@ -1,0 +1,58 @@
+# requirements.txt
+# Version pinning is CRITICAL — this dependency graph has breaking-change boundaries:
+#   - LangGraph's API changed significantly between 0.0.x and 0.2.x
+#   - qdrant-client introduced AsyncQdrantClient at 1.7.0
+#   - Pydantic v2 is incompatible with v1 config patterns
+#   - fastembed model loading changed between versions
+
+# Core orchestration
+langgraph>=0.2.0,<0.3.0
+langchain-core>=0.2.0,<0.3.0
+
+# LLM
+litellm>=1.40.0,<2.0.0
+
+# Vector database
+qdrant-client[async]>=1.9.0,<2.0.0
+
+# Embeddings and reranking
+sentence-transformers>=2.7.0,<3.0.0
+fastembed>=0.3.0,<0.4.0
+transformers>=4.40.0,<5.0.0
+# NOTE: PyTorch is intentionally EXCLUDED from this file.
+# sentence-transformers and transformers both depend on it, but the correct
+# version depends on your CUDA toolkit version. Install separately:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+# Replace cu121 with your CUDA version (cu118, cu124, cpu, etc.).
+# For the RTX 5070 Ti target hardware, use cu124 or later.
+numpy>=1.26.0,<2.0.0
+
+# Document processing
+PyMuPDF>=1.24.0,<2.0.0
+pdfplumber>=0.11.0,<1.0.0
+python-docx>=1.1.0,<2.0.0
+python-pptx>=0.6.23,<1.0.0
+pandas>=2.2.0,<3.0.0
+openpyxl>=3.1.0,<4.0.0
+
+# Database
+asyncpg>=0.29.0,<1.0.0
+psycopg2-binary>=2.9.9,<3.0.0
+
+# API and UI
+fastapi>=0.110.0,<1.0.0
+uvicorn[standard]>=0.29.0,<1.0.0
+streamlit>=1.35.0,<2.0.0
+
+# Configuration
+pydantic>=2.7.0,<3.0.0
+pydantic-settings>=2.2.0,<3.0.0
+python-dotenv>=1.0.0,<2.0.0
+PyYAML>=6.0,<7.0
+
+# Logging and utilities
+# NOTE: Using standard library `logging` with a JSON formatter, not structlog.
+# All code in this spec uses `logger.info()`, `logger.warning()` — standard API.
+# A JSON formatter (e.g., python-json-logger) is sufficient for structured output
+# without the overhead of a separate structured logging framework.
+python-json-logger>=2.0.7,<3.0.0

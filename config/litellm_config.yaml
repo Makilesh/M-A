@@ -1,0 +1,33 @@
+# LiteLLM Configuration
+# ⚠ VERIFY all model strings against current LiteLLM Google provider docs
+# before locking into production. Naming conventions change frequently.
+
+models:
+  synthesis_primary:
+    model: "gemini/gemini-3.5-flash"         # ⚠ VERIFY — reserved for synthesis only
+    daily_limit: 18                           # Leave 2 RPD buffer from 20 RPD cap
+    rpm_limit: 5
+    temperature: 0.1
+    max_tokens: 3000
+
+  agent_workhorse:
+    model: "gemini/gemini-3.1-flash-lite"    # ⚠ VERIFY — primary for all agent calls
+    daily_limit: 480                          # Leave 20 RPD buffer from 500 RPD cap
+    rpm_limit: 15
+    temperature: 0.0
+    max_tokens: 800
+
+  local_fallback:
+    model: "ollama/qwen2.5:14b-instruct-q4_k_m"
+    safe_fallback: "ollama/qwen2.5:7b-instruct-q4_k_m"
+    temperature: 0.0
+    max_tokens: 1500
+
+# Do NOT use these models (per p4.md rate limit strategy):
+# gemini-3-flash        :  5 RPM,  20 RPD → Do not use
+# gemini-2.5-flash      :  5 RPM,  20 RPD → Do not use (superseded)
+# gemini-2.5-flash-lite : 10 RPM,  20 RPD → Do not use
+
+general:
+  json_mode: true                             # Default for structured-output agents
+  retry_on_json_failure: 3                    # Max attempts for JSON parse

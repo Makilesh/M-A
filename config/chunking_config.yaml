@@ -1,0 +1,21 @@
+# Chunking Strategy Configuration
+# Three-tier: Structural → Semantic → Financial Special Handling
+
+chunking:
+  target_tokens: 512       # Target chunk size
+  min_tokens: 128          # Minimum — smaller chunks are merged with adjacent
+  max_tokens: 800          # ← Chosen for RETRIEVAL GRANULARITY, not model capacity.
+                           # bge-m3 supports 8192 tokens — the model can handle 4000+.
+                           # The real constraint: very large chunks hurt retrieval precision.
+                           # The reranker scores the WHOLE chunk against one query, so
+                           # unrelated content inside a large chunk adds noise and dilutes
+                           # the relevance signal. 800 tokens is the sweet spot between
+                           # sufficient context per chunk and retrieval quality.
+                           # Do NOT raise this thinking "bge-m3 can handle more" — the
+                           # tradeoff is retrieval quality, not model capacity.
+  overlap_ratio: 0.10      # 10% overlap, always at sentence boundaries
+  similarity_threshold: 0.50  # Semantic boundary detection
+  parent_target_tokens: 2048  # Parent chunks for context expansion
+
+tokenizer:
+  model: "BAAI/bge-m3"    # Must match embedding model exactly

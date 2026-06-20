@@ -1,0 +1,20 @@
+# Qdrant Production Configuration
+# Mounted to /qdrant/config/production.yaml in the Docker container.
+# Controls storage, performance, and telemetry for the Qdrant instance.
+
+storage:
+  storage_path: /qdrant/storage        # matches Docker volume mount
+  on_disk_payload: true                 # Keep payloads on disk, vectors in RAM
+                                        # Reduces RAM usage for large text payloads
+  
+  performance:
+    max_search_threads: 0              # 0 = auto-detect (uses all available cores)
+    max_optimization_threads: 2        # Background optimization thread limit
+
+service:
+  grpc_port: 6334                      # Must match QDRANT__SERVICE__GRPC_PORT env var
+  enable_tls: false                    # No TLS needed inside Docker network
+
+telemetry_disabled: true               # Disable telemetry for production/air-gapped deployments
+
+log_level: WARN                        # Reduce log noise in production; use INFO for debugging

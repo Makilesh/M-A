@@ -1,0 +1,3 @@
+# Qdrant config for Docker mount — identical to config/qdrant_config.yaml
+# See config/qdrant_config.yaml for authoritative version
+# This copy is mounted to /qdrant/config/production.yaml in the container
