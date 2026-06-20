@@ -1,0 +1,91 @@
+# Docker Compose for M&A Due Diligence Intelligence Engine
+# Services: FastAPI app, Streamlit UI, Qdrant, PostgreSQL
+#
+# Usage:
+#   docker compose up --build
+#   docker compose down -v  # removes volumes
+
+services:
+  # ==================== Database ====================
+  postgres:
+    image: postgres:16-alpine
+    container_name: manda-postgres
+    environment:
+      POSTGRES_USER: manda_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: manda_rag
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U manda_user -d manda_rag"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ==================== Vector Database ====================
+  qdrant:
+    image: qdrant/qdrant:v1.12.1
+    container_name: manda-qdrant
+    ports:
+      - "6333:6333"  # REST API
+      - "6334:6334"  # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ==================== FastAPI Application ====================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: manda-api
+    ports:
+      - "8000:8000"
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+      - POSTGRES_URL=postgresql://manda_user:${POSTGRES_PASSWORD:-password}@postgres:5432/manda_rag
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OLLAMA_API_BASE=${OLLAMA_API_BASE:-http://host.docker.internal:11434}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data  # Persistent data directory
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ==================== Streamlit UI ====================
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: manda-streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  qdrant_data:
+    driver: local

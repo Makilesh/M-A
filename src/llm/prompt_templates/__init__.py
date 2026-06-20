@@ -1,1 +1,1 @@
-# src/llm/prompt_templates — Agent-specific prompt templates
+# src/llm/prompt_templates/__init__.py
