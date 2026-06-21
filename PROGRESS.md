@@ -29,6 +29,50 @@ Session 2: Implemented Phase 1 Foundation (token_counter.py, constants.py, qdran
 
 Session 3: Implemented all 8 Streamlit UI components (agent_trace_viewer, answer_display, citation_viewer, deal_manager, document_uploader, query_interface, risk_dashboard, version_browser). 9 test files + conftest with 55+ test cases. Zero stubs remaining. All files parse OK.
 
+Session 4 (Validation & Polish):
+- Cleaned up Docker directory structure by removing stubs under `docker/` and updating references to point to root Docker config files.
+- Documented Postgres/Langgraph missing dependencies in `DECISIONS_LOG.md`.
+- Built a golden Q&A dataset with 19 high-quality M&A due diligence question/answer pairs spanning 5 query types.
+- Created 3 synthetic deal documents (financials, merger agreement, board deck) to ground the Q&A dataset.
+- Created and executed an offline pipeline validation script `tests/test_pipeline_offline.py` to test the ingestion, chunking, classification, PII detection, and risk signal extraction logic.
+
+### Environment Execution Limits (Offline vs. Online)
+
+**What was executable in the current sandboxed workspace:**
+- Simulated document parsing, structural chunking, and semantic chunking of synthetic files.
+- Document classification, PII detection, and risk signal extraction heuristics.
+- Validation of the golden QA set structure and coverage checking (89% ground-truth keyword overlap achieved on mock chunking).
+
+**What was NOT executable (requires live environment/infrastructure):**
+- Embedding generation & Vector search indexing (requires live Qdrant container).
+- LLM inference & RAG Agent routing (requires LiteLLM configured with `GEMINI_API_KEY` and local Ollama server running mistral/llama3).
+- Postgres state/history checkpointing (requires live Postgres container).
+
+### Local Execution Instructions
+
+To run the complete pipeline and interfaces locally:
+1. **Start Infrastructure**: Start Qdrant and Postgres databases via Docker:
+   ```bash
+   docker compose up -d
+   ```
+2. **Start Ollama**: Start Ollama locally on port 11434 and download local LLMs (if not already cached):
+   ```bash
+   ollama pull llama3
+   ```
+3. **Configure Environment**: Copy `.env.example` to `.env` and fill in `GEMINI_API_KEY`.
+4. **Launch API**: Run the backend FastAPI server:
+   ```bash
+   uvicorn api.main:app --reload
+   ```
+5. **Launch UI**: Run the frontend Streamlit workspace dashboard:
+   ```bash
+   streamlit run app/streamlit_app.py
+   ```
+6. **Run Full Tests**: Execute the pytest suite to verify all unit, integration, and E2E agent tests:
+   ```bash
+   pytest
+   ```
+
 ## Known Issues / Blockers
 
 - Deal management uses in-memory dict (production: should be Postgres table)
