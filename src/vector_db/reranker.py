@@ -48,12 +48,13 @@ def _get_embedding_model() -> SentenceTransformer:
     """
     global _embedding_model
     if _embedding_model is None:
-        logger.info("Loading BAAI/bge-m3 embedding model to CUDA (~580MB VRAM)")
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        logger.info(f"Loading BAAI/bge-m3 embedding model to {device.upper()}")
         _embedding_model = SentenceTransformer(
             "BAAI/bge-m3",
-            device="cuda",
+            device=device,
         )
-        logger.info("BAAI/bge-m3 embedding model loaded successfully")
+        logger.info(f"BAAI/bge-m3 embedding model loaded successfully on {device.upper()}")
     return _embedding_model
 
 
@@ -73,14 +74,15 @@ def _get_reranker_model() -> CrossEncoder:
     """
     global _reranker_model
     if _reranker_model is None:
-        logger.info("Loading BAAI/bge-reranker-v2-m3 to CUDA (~2.3GB VRAM)")
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        logger.info(f"Loading BAAI/bge-reranker-v2-m3 to {device.upper()}")
         _reranker_model = CrossEncoder(
             "BAAI/bge-reranker-v2-m3",
             max_length=1024,
-            device="cuda",
+            device=device,
             activation_fct=torch.nn.Sigmoid(),  # ← MANDATORY for [0,1] scores
         )
-        logger.info("BAAI/bge-reranker-v2-m3 loaded successfully (sigmoid activated)")
+        logger.info(f"BAAI/bge-reranker-v2-m3 loaded successfully on {device.upper()} (sigmoid activated)")
     return _reranker_model
 
 
