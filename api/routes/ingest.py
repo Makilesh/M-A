@@ -284,7 +284,7 @@ async def _process_and_index(
                 "is_table": chunk.metadata.get("is_table", 0) if hasattr(chunk, "metadata") else 0,
                 "is_current_version": 1 if is_current_version else 0,
                 "contains_pii": contains_pii,
-                "content_type": "text",
+                "content_type": chunk.metadata.get("content_type", "text") if hasattr(chunk, "metadata") else "text",
                 "token_count": chunk.token_count,
             },
         )
