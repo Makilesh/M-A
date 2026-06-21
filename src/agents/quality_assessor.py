@@ -61,7 +61,7 @@ def _heuristic_assessment(state: AgentState) -> dict | None:
     unique_sources = len(set(c.get("source_file", "") for c in chunks))
 
     # High confidence: clearly good or clearly bad
-    if mean_score >= 0.7 and min_score >= 0.4 and len(chunks) >= 3:
+    if mean_score >= 0.5 and min_score >= 0.2 and len(chunks) >= 3:
         relevance = min(mean_score, 1.0)
         completeness = min(0.6 + (unique_sources * 0.1), 1.0)
         precision = min(min_score + 0.2, 1.0)
@@ -79,7 +79,7 @@ def _heuristic_assessment(state: AgentState) -> dict | None:
             "force_refusal": False,
         }
 
-    if mean_score < 0.2:
+    if mean_score < 0.05:
         return {
             "context_quality_score": round(mean_score, 3),
             "quality_breakdown": {
@@ -89,7 +89,7 @@ def _heuristic_assessment(state: AgentState) -> dict | None:
             },
             "missing_aspects": ["Low relevance scores across all retrieved chunks"],
             "quality_method": "heuristic",
-            "force_refusal": mean_score < 0.05,
+            "force_refusal": mean_score < 0.01,
         }
 
     # Ambiguous — fall back to LLM

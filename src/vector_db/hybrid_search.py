@@ -124,11 +124,23 @@ def _build_filter(deal_id: str, metadata_filters: dict) -> Filter:
             FieldCondition(key="contains_pii", match=MatchValue(value=0))
         )
 
+    ALLOWED_FILTER_KEYS = {
+        "document_category",
+        "is_table",
+        "content_type",
+        "doc_id",
+    }
+
     for key, value in local_filters.items():
-        if value is not None:
-            conditions.append(
-                FieldCondition(key=key, match=MatchValue(value=value))
-            )
+        if key in ALLOWED_FILTER_KEYS and value is not None:
+            if isinstance(value, list):
+                conditions.append(
+                    FieldCondition(key=key, match=MatchAny(any=value))
+                )
+            else:
+                conditions.append(
+                    FieldCondition(key=key, match=MatchValue(value=value))
+                )
 
     return Filter(must=conditions)
 
