@@ -27,7 +27,7 @@ pip install torch --index-url https://download.pytorch.org/whl/cu124
 pip install -r requirements.txt
 
 # 4. Start services via Docker Compose
-docker compose -f docker/docker-compose.yml up -d
+docker compose up -d
 
 # 5. Run the application
 streamlit run app/streamlit_app.py
