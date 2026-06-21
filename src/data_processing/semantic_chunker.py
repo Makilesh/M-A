@@ -82,6 +82,7 @@ class SemanticChunker:
         section_heading: str = "",
         page_number: int = 0,
         clause_id: str | None = None,
+        metadata: dict | None = None,
     ) -> list[SemanticChunk]:
         """
         Splits text into semantic chunks with sentence-boundary overlap.
@@ -91,6 +92,7 @@ class SemanticChunker:
             section_heading: Section heading for metadata.
             page_number: Page number for metadata.
             clause_id: Clause ID for legal documents.
+            metadata: Custom metadata dictionary to propagate.
 
         Returns:
             List of SemanticChunk objects.
@@ -99,6 +101,7 @@ class SemanticChunker:
             return []
 
         total_tokens = count_tokens(text)
+        meta = dict(metadata) if metadata else {}
 
         # Short text — single chunk
         if total_tokens <= self.max_tokens:
@@ -111,6 +114,7 @@ class SemanticChunker:
                     section_heading=section_heading,
                     page_number=page_number,
                     clause_id=clause_id,
+                    metadata=meta,
                 )]
             return [SemanticChunk(
                 text=text.strip(),
@@ -119,6 +123,7 @@ class SemanticChunker:
                 section_heading=section_heading,
                 page_number=page_number,
                 clause_id=clause_id,
+                metadata=meta,
             )]
 
         # Split into sentences
@@ -140,6 +145,7 @@ class SemanticChunker:
                 section_heading=section_heading,
                 page_number=page_number,
                 clause_id=clause_id,
+                metadata=meta.copy(),
             ))
 
         # Merge undersized chunks
@@ -177,13 +183,35 @@ class SemanticChunker:
                 heading = getattr(sc, "section_heading", "")
                 page = getattr(sc, "page_number", 0)
                 clause = getattr(sc, "clause_id", None)
+                chunk_type = getattr(sc, "chunk_type", "text")
+                metadata = getattr(sc, "metadata", {})
             else:
                 text = sc.get("text", "")
                 heading = sc.get("section_heading", "")
                 page = sc.get("page_number", 0)
                 clause = sc.get("clause_id")
+                chunk_type = sc.get("chunk_type", "text")
+                metadata = sc.get("metadata", {})
 
-            chunks = self.chunk(text, heading, page, clause)
+            # Propagate is_table and content_type/chunk_type
+            meta = dict(metadata)
+            meta["chunk_type"] = chunk_type
+            
+            # Check if this represents a table
+            is_table_flag = (
+                chunk_type == "table"
+                or getattr(sc, "is_table", False)
+                or (isinstance(sc, dict) and sc.get("is_table", False))
+            )
+            
+            if is_table_flag:
+                meta["is_table"] = 1
+                meta["content_type"] = "table_markdown"
+            else:
+                meta["is_table"] = 0
+                meta["content_type"] = "text"
+
+            chunks = self.chunk(text, heading, page, clause, metadata=meta)
             all_chunks.extend(chunks)
 
         return all_chunks
