@@ -58,7 +58,7 @@ class BudgetTracker:
     _instance: "BudgetTracker | None" = None
 
     DAILY_LIMITS: dict[str, int] = {
-        "synthesis_primary": 18,  # gemini-3.5-flash: leave 2 RPD buffer from 20
+        "synthesis_primary": 480,  # gemini-3.1-flash-lite: leave 20 RPD buffer from 500
         "agent_workhorse": 480,  # gemini-3.1-flash-lite: leave 20 RPD buffer from 500
     }
 

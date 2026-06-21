@@ -56,16 +56,20 @@ async def call_structured_agent(
                 },
             )
 
-            response = await litellm.acompletion(
-                model=model,
-                messages=[
+            kwargs = {
+                "model": model,
+                "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
-                temperature=temperature,
-                max_tokens=max_tokens,
-                response_format={"type": "json_object"},  # Enforces JSON mode
-            )
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "response_format": {"type": "json_object"},  # Enforces JSON mode
+            }
+            if model.startswith("ollama/"):
+                kwargs["num_ctx"] = 8192  # Expand context window for local Ollama to prevent truncation
+
+            response = await litellm.acompletion(**kwargs)
 
             raw = response.choices[0].message.content
             # Strip accidental markdown fences before parsing
