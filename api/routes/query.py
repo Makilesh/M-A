@@ -53,6 +53,8 @@ async def query_endpoint(request: QueryRequest):
             deal_id=request.deal_id,
             session_id=session_id,
         )
+        if result.get("status") == "error":
+            raise ValueError(result.get("error", "Unknown pipeline error"))
     except Exception as e:
         logger.error(
             "Query pipeline failed",
