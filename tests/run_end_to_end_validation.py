@@ -181,7 +181,7 @@ async def main():
         files_info = [
             {"path": deal_dir / "aurora_financials_fy2023.txt", "category": "financial"},
             {"path": deal_dir / "merger_agreement_v2_final.txt", "category": "legal"},
-            {"path": deal_dir / "board_deck_strategic_review_mar2024.txt", "category": "board_deck"},
+            {"path": deal_dir / "board_deck_strategic_review_mar2024.txt", "category": "board"},
         ]
         
         doc_mappings = await ingest_files(client, files_info)

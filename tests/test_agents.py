@@ -104,8 +104,8 @@ class TestQualityAssessorHeuristic:
         from src.agents.quality_assessor import _heuristic_assessment
 
         chunks = [
-            {"reranker_score": 0.1, "source_file": "f1.pdf"},
-            {"reranker_score": 0.05, "source_file": "f2.pdf"},
+            {"reranker_score": 0.03, "source_file": "f1.pdf"},
+            {"reranker_score": 0.01, "source_file": "f2.pdf"},
         ]
         state = {**sample_agent_state, "reranked_results": chunks}
         result = _heuristic_assessment(state)
