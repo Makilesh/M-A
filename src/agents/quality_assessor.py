@@ -142,7 +142,7 @@ async def quality_assessor_node(state: AgentState) -> dict:
         f"Chunk {i+1} (score={c.get('reranker_score', 0):.2f}, "
         f"source={c.get('source_file', 'unknown')}, "
         f"category={c.get('document_category', 'unknown')}): "
-        f"{c.get('text', '')[:200]}..."
+        f"{c.get('text', '')[:1200]}..."
         for i, c in enumerate(chunks[:10])
     )
 

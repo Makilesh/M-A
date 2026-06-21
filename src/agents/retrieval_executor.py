@@ -98,11 +98,22 @@ async def retrieval_executor_node(state: AgentState) -> dict:
 
     # Step 6: Rerank
     if chunks:
-        passages = [c.get("text", "") for c in chunks]
+        passages = []
+        for c in chunks:
+            parts = []
+            if c.get("source_file"):
+                parts.append(f"Document: {c['source_file']}")
+            if c.get("section_heading"):
+                parts.append(f"Section: {c['section_heading']}")
+            parts.append(c.get("text", ""))
+            passages.append(" | ".join(parts))
+
         scores = await rerank_async(query, passages)
 
         # Apply threshold and sort
-        threshold = config.get("reranker_threshold", 0.3)
+        # We use a threshold of 0.0 to keep all retrieved candidates for relative sorting,
+        # relying on the Quality Assessor and LLM to determine absolute relevance.
+        threshold = 0.0
         scored_chunks = []
         for chunk, score in zip(chunks, scores):
             s = float(score)
