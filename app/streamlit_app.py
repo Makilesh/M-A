@@ -1,13 +1,19 @@
 """
 Streamlit UI — M&A Due Diligence Intelligence Engine.
 
-Sidebar: live budget status display, deal selector.
-Main: query interface with citation viewer, version warnings, computed metric flags.
+Sidebar: live budget status display, deal selector, document uploader.
+Main: query interface, answer display, citation viewer, agent execution trace.
 """
 
 import streamlit as st
 import requests
-import json
+
+from app.components.deal_manager import render_deal_manager
+from app.components.document_uploader import render_document_uploader
+from app.components.query_interface import render_query_interface
+from app.components.answer_display import render_answer, render_refusal
+from app.components.citation_viewer import render_citations
+from app.components.agent_trace_viewer import render_agent_trace
 
 # API base URL
 API_URL = "http://localhost:8000/api/v1"
@@ -27,26 +33,12 @@ def main():
     with st.sidebar:
         st.title("⚙️ Control Panel")
 
-        # Deal selector
-        st.subheader("📁 Deal Selection")
-        deal_id = st.text_input("Deal ID", value="", placeholder="Enter or select deal ID")
-
-        if st.button("Create New Deal"):
-            deal_name = st.text_input("Deal Name", key="new_deal_name")
-            if deal_name:
-                try:
-                    resp = requests.post(
-                        f"{API_URL}/deals",
-                        json={"deal_name": deal_name, "description": ""},
-                    )
-                    if resp.status_code == 200:
-                        st.success(f"Deal created: {resp.json()['deal_id']}")
-                except Exception as e:
-                    st.error(f"Failed to create deal: {e}")
+        # 1. Deal selector
+        deal_id = render_deal_manager(API_URL)
 
         st.divider()
 
-        # Budget status
+        # 2. Budget status
         st.subheader("💰 API Budget Status")
         try:
             resp = requests.get(f"{API_URL}/budget")
@@ -64,57 +56,31 @@ def main():
                     with col2:
                         st.caption(f"{remaining}/{limit}")
 
-                    color = "normal" if pct < 80 else "inverse" if pct < 95 else "off"
                     st.progress(min(pct / 100, 1.0))
         except Exception:
             st.warning("⚠ Could not fetch budget status")
 
         st.divider()
 
-        # Document upload
-        st.subheader("📄 Document Upload")
-        uploaded_file = st.file_uploader(
-            "Upload document",
-            type=["pdf", "docx", "pptx", "xlsx", "xls"],
-        )
-        if uploaded_file and deal_id:
-            if st.button("📤 Ingest Document"):
-                with st.spinner("Ingesting document..."):
-                    try:
-                        resp = requests.post(
-                            f"{API_URL}/ingest",
-                            files={"file": (uploaded_file.name, uploaded_file.getvalue())},
-                            data={"deal_id": deal_id},
-                        )
-                        if resp.status_code == 200:
-                            result = resp.json()
-                            st.success(
-                                f"✅ Ingested: {result['chunks_created']} chunks "
-                                f"({result['document_category']})"
-                            )
-                        else:
-                            st.error(f"Ingestion failed: {resp.text}")
-                    except Exception as e:
-                        st.error(f"Upload error: {e}")
+        # 3. Document upload
+        if deal_id:
+            render_document_uploader(API_URL, deal_id)
+        else:
+            st.info("👈 Select or create a Deal ID to enable document upload.")
 
     # ==================== Main Content ====================
     st.title("🔍 M&A Due Diligence Intelligence Engine")
     st.caption("Ask questions about your deal documents with traceable citations")
 
-    # Query input
-    query = st.text_area(
-        "Ask a question about the deal:",
-        placeholder="e.g., What was the total revenue in FY2023 and how does it compare to FY2022?",
-        height=100,
-    )
+    if not deal_id:
+        st.info("👈 Enter or select a Deal ID in the sidebar to get started.")
+        return
 
-    col1, col2, col3 = st.columns([1, 1, 4])
-    with col1:
-        submit = st.button("🔎 Search", type="primary", disabled=not deal_id)
-    with col2:
-        include_pii = st.checkbox("Include PII", value=False, help="Include PII-flagged content")
+    # Render query interface
+    query_result = render_query_interface()
 
-    if submit and query and deal_id:
+    if query_result:
+        query, include_pii = query_result
         with st.spinner("Running query pipeline..."):
             try:
                 resp = requests.post(
@@ -124,60 +90,35 @@ def main():
                         "deal_id": deal_id,
                         "include_pii": include_pii,
                     },
+                    timeout=300.0,
                 )
 
                 if resp.status_code == 200:
                     result = resp.json()
 
-                    # Answer display
-                    st.subheader("📋 Answer")
+                    # Render answer
+                    # If confidence is below threshold and validation failed, or answer is refused, render refusal
+                    # But the synthesizer has its own refusal logic, and answer_display has render_refusal.
+                    # We will render the answer using render_answer component.
+                    render_answer(
+                        answer=result.get("answer", ""),
+                        confidence_score=result.get("confidence_score", 0.0),
+                        validation_status=result.get("validation_status", "passed"),
+                        hallucination_flags=result.get("hallucination_flags", []),
+                        query_type=result.get("query_type", "summary"),
+                        latency_ms=result.get("total_latency_ms", 0.0),
+                        rewrite_iterations=result.get("rewrite_iterations", 0),
+                    )
 
-                    # Validation status badge
-                    status = result.get("validation_status", "passed")
-                    if status == "passed":
-                        st.success(f"✅ Confidence: {result['confidence_score']:.0%}")
-                    elif status == "warning":
-                        st.warning(f"⚠ Confidence: {result['confidence_score']:.0%}")
-                    else:
-                        st.error(f"❌ Confidence: {result['confidence_score']:.0%}")
-
-                    st.markdown(result["answer"])
-
-                    # Hallucination flags
-                    if result.get("hallucination_flags"):
-                        st.warning("⚠ **Hallucination Warnings:**")
-                        for flag in result["hallucination_flags"]:
-                            st.markdown(f"- {flag}")
-
-                    # Citations
+                    # Render citations
                     if result.get("citations"):
-                        st.subheader("📚 Citations")
-                        for i, citation in enumerate(result["citations"], 1):
-                            version_warning = ""
-                            if not citation.get("is_current_version", True):
-                                version_warning = " ⚠ NOT CURRENT VERSION"
+                        st.markdown("---")
+                        render_citations(result.get("citations", []))
 
-                            st.markdown(
-                                f"{i}. **{citation.get('source_file', 'Unknown')}** "
-                                f"| Section: {citation.get('section_heading', 'N/A')} "
-                                f"| Page: {citation.get('page_number', 'N/A')}"
-                                f"{version_warning}"
-                            )
-
-                    # Metadata expander
-                    with st.expander("🔧 Query Metadata"):
-                        mcol1, mcol2, mcol3 = st.columns(3)
-                        with mcol1:
-                            st.metric("Query Type", result["query_type"])
-                        with mcol2:
-                            st.metric("Latency", f"{result['total_latency_ms']:.0f}ms")
-                        with mcol3:
-                            st.metric("Rewrites", result.get("rewrite_iterations", 0))
-
-                    # Agent trace
-                    with st.expander("🔍 Agent Execution Trace"):
-                        for trace in result.get("agent_trace", []):
-                            st.json(trace)
+                    # Render agent trace
+                    if result.get("agent_trace"):
+                        st.markdown("---")
+                        render_agent_trace(result.get("agent_trace", []))
 
                 else:
                     st.error(f"Query failed: {resp.text}")
@@ -185,10 +126,7 @@ def main():
             except requests.ConnectionError:
                 st.error("❌ Cannot connect to API server. Is it running?")
             except Exception as e:
-                st.error(f"Error: {e}")
-
-    elif not deal_id:
-        st.info("👈 Enter a Deal ID in the sidebar to get started.")
+                st.error(f"Error running pipeline: {e}")
 
 
 if __name__ == "__main__":
