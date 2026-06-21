@@ -1,0 +1,257 @@
+{
+  "documents": {
+    "aurora_financials_fy2023.txt": {
+      "chars": 7602,
+      "tokens": 1336
+    },
+    "board_deck_strategic_review_mar2024.txt": {
+      "chars": 6506,
+      "tokens": 1459
+    },
+    "merger_agreement_v2_final.txt": {
+      "chars": 8989,
+      "tokens": 1962
+    }
+  },
+  "chunking": {
+    "aurora_financials_fy2023.txt": {
+      "input_sections": 24,
+      "structural_chunks": 15,
+      "total_tokens": 1335,
+      "semantic_chunks": 15,
+      "avg_tokens": 89,
+      "min_tokens": 22,
+      "max_tokens": 203
+    },
+    "board_deck_strategic_review_mar2024.txt": {
+      "input_sections": 30,
+      "structural_chunks": 17,
+      "total_tokens": 1448,
+      "semantic_chunks": 17,
+      "avg_tokens": 85,
+      "min_tokens": 10,
+      "max_tokens": 239
+    },
+    "merger_agreement_v2_final.txt": {
+      "input_sections": 28,
+      "structural_chunks": 23,
+      "total_tokens": 1953,
+      "semantic_chunks": 23,
+      "avg_tokens": 85,
+      "min_tokens": 28,
+      "max_tokens": 191
+    }
+  },
+  "classification": {
+    "aurora_financials_fy2023.txt": "financial",
+    "board_deck_strategic_review_mar2024.txt": "financial",
+    "merger_agreement_v2_final.txt": "legal"
+  },
+  "pii": {
+    "aurora_financials_fy2023.txt": {
+      "flagged": 15,
+      "total": 15
+    },
+    "board_deck_strategic_review_mar2024.txt": {
+      "flagged": 17,
+      "total": 17
+    },
+    "merger_agreement_v2_final.txt": {
+      "flagged": 23,
+      "total": 23
+    }
+  },
+  "risk_signals": {
+    "aurora_financials_fy2023.txt": {
+      "count": 0,
+      "types": {}
+    },
+    "board_deck_strategic_review_mar2024.txt": {
+      "count": 6,
+      "types": {
+        "key_person_dependency": 2,
+        "customer_concentration": 2,
+        "regulatory_risk": 2
+      }
+    },
+    "merger_agreement_v2_final.txt": {
+      "count": 8,
+      "types": {
+        "financial_distress": 1,
+        "litigation": 1,
+        "ip_risk": 1,
+        "indemnification": 3,
+        "change_of_control": 2
+      }
+    }
+  },
+  "version_resolution": {
+    "aurora_financials_fy2023.txt": {
+      "version_string": null,
+      "is_current": 1,
+      "is_final": false,
+      "base_name": "aurora_financials_fy2023"
+    },
+    "board_deck_strategic_review_mar2024.txt": {
+      "version_string": null,
+      "is_current": 1,
+      "is_final": false,
+      "base_name": "board_deck_strategic_review_mar2024"
+    },
+    "merger_agreement_v2_final.txt": {
+      "version_string": "2",
+      "is_current": 1,
+      "is_final": true,
+      "base_name": "merger_agreement"
+    }
+  },
+  "golden_qa_validation": {
+    "covered": 17,
+    "uncovered": 2,
+    "details": [
+      {
+        "id": "fin_01",
+        "query_type": "financial",
+        "facts_found": 4,
+        "total_facts": 4,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "fin_02",
+        "query_type": "financial",
+        "facts_found": 4,
+        "total_facts": 4,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "fin_03",
+        "query_type": "financial",
+        "facts_found": 5,
+        "total_facts": 5,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "fin_04",
+        "query_type": "financial",
+        "facts_found": 3,
+        "total_facts": 5,
+        "coverage_pct": 60.0
+      },
+      {
+        "id": "fin_05",
+        "query_type": "financial",
+        "facts_found": 6,
+        "total_facts": 6,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "legal_01",
+        "query_type": "legal",
+        "facts_found": 4,
+        "total_facts": 4,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "legal_02",
+        "query_type": "legal",
+        "facts_found": 6,
+        "total_facts": 6,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "legal_03",
+        "query_type": "legal",
+        "facts_found": 7,
+        "total_facts": 7,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "legal_04",
+        "query_type": "legal",
+        "facts_found": 4,
+        "total_facts": 5,
+        "coverage_pct": 80.0
+      },
+      {
+        "id": "legal_05",
+        "query_type": "legal",
+        "facts_found": 7,
+        "total_facts": 7,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "comp_01",
+        "query_type": "comparative",
+        "facts_found": 12,
+        "total_facts": 12,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "comp_02",
+        "query_type": "comparative",
+        "facts_found": 10,
+        "total_facts": 10,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "comp_03",
+        "query_type": "comparative",
+        "facts_found": 4,
+        "total_facts": 5,
+        "coverage_pct": 80.0
+      },
+      {
+        "id": "sum_01",
+        "query_type": "summary",
+        "facts_found": 9,
+        "total_facts": 9,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "sum_02",
+        "query_type": "summary",
+        "facts_found": 9,
+        "total_facts": 9,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "mh_01",
+        "query_type": "multi_hop",
+        "facts_found": 7,
+        "total_facts": 7,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "mh_02",
+        "query_type": "multi_hop",
+        "facts_found": 5,
+        "total_facts": 6,
+        "coverage_pct": 83.3
+      },
+      {
+        "id": "mh_03",
+        "query_type": "multi_hop",
+        "facts_found": 6,
+        "total_facts": 6,
+        "coverage_pct": 100.0
+      },
+      {
+        "id": "mh_04",
+        "query_type": "multi_hop",
+        "facts_found": 2,
+        "total_facts": 3,
+        "coverage_pct": 66.7
+      }
+    ]
+  },
+  "timing": {},
+  "summary": {
+    "documents_processed": 3,
+    "total_semantic_chunks": 55,
+    "total_tokens": 4736,
+    "pii_flagged": 55,
+    "risk_signals": 14,
+    "golden_qa_covered": 17,
+    "golden_qa_total": 19
+  }
+}
