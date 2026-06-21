@@ -9,7 +9,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 3203.9999999979045,
+    "latency_ms": 12967.99999999348,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -31,7 +31,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 2483.9999999967404,
+    "latency_ms": 1735.000000015134,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -53,7 +53,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 4891.00000000326,
+    "latency_ms": 2342.9999999934807,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -71,12 +71,12 @@
     "query": "What is the Net Debt/EBITDA leverage ratio and how has it changed?",
     "query_type": "financial",
     "status": "passed",
-    "answer": "",
+    "answer": "I was unable to find sufficient relevant information in the data room to answer this question, even after refining the search. This may mean the relevant documents haven't been uploaded yet, or the question falls outside the scope of the available materials.\n\nSearch attempts: 3\nBest quality score achieved: 0.30",
     "confidence_score": 0.0,
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 8812.000000005355,
+    "latency_ms": 51046.999999991385,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -87,7 +87,120 @@
       "deleveraged"
     ],
     "citation_match": false,
-    "agent_trace": []
+    "agent_trace": [
+      {
+        "agent": "query_intelligence",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "input_query": "What is the Net Debt/EBITDA leverage ratio and how has it changed?",
+        "output": {
+          "query_type": "financial",
+          "primary_intent": "Calculate and analyze the trend of the Net Debt/EBITDA leverage ratio",
+          "extracted_entities": {
+            "companies": [
+              "aurora",
+              "vertex"
+            ],
+            "fiscal_years": [],
+            "financial_metrics": [
+              "Net Debt",
+              "EBITDA",
+              "leverage ratio"
+            ],
+            "legal_clause_types": [],
+            "dollar_thresholds": [],
+            "date_ranges": [],
+            "clause_ids": []
+          },
+          "metadata_filters": {
+            "fiscal_year": null,
+            "document_category": "financial",
+            "is_current_version": 1,
+            "currency": null
+          },
+          "requires_numerical_precision": true,
+          "requires_cross_document": true,
+          "document_scope": [
+            "financial"
+          ],
+          "query_expansions": [
+            "Calculate the Net Debt to EBITDA ratio for the current and previous periods",
+            "Trend analysis of leverage ratios including Net Debt and EBITDA",
+            "How has the company's leverage ratio evolved over time?"
+          ],
+          "reformulated_query": "Calculate the Net Debt/EBITDA leverage ratio for the current period and compare it against historical data to determine the trend.",
+          "ambiguities": [
+            "The specific time period for the trend analysis is not defined (e.g., year-over-year or quarter-over-quarter)."
+          ]
+        }
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 6297.0,
+        "dense_count": 15,
+        "reranked_count": 2
+      },
+      {
+        "agent": "financial_verifier",
+        "skipped": true,
+        "reason": "no_financial_chunks"
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "llm",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "score": 0.3
+      },
+      {
+        "agent": "query_rewriter",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "iteration": 1,
+        "rewritten_query": "Provide the Net Debt and EBITDA figures for the current period and the preceding three fiscal years to calculate the leverage ratio trend and analyze the year-over-year changes."
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 3265.0,
+        "dense_count": 15,
+        "reranked_count": 1
+      },
+      {
+        "agent": "financial_verifier",
+        "skipped": true,
+        "reason": "no_financial_chunks"
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "llm",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "score": 0.3
+      },
+      {
+        "agent": "query_rewriter",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "iteration": 2,
+        "rewritten_query": "Extract historical financial data for Net Debt and EBITDA for the current fiscal year and the three preceding fiscal years. Calculate the Net Debt/EBITDA leverage ratio for each of these four years to determine the historical trend and year-over-year changes."
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 3421.0,
+        "dense_count": 15,
+        "reranked_count": 3
+      },
+      {
+        "agent": "financial_verifier",
+        "skipped": true,
+        "reason": "no_financial_chunks"
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "llm",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "score": 0.3
+      },
+      {
+        "agent": "insufficient_context",
+        "force_refusal": true
+      }
+    ]
   },
   {
     "id": "fin_05",
@@ -99,7 +212,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 2046.9999999913853,
+    "latency_ms": 15422.00000002049,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -118,12 +231,12 @@
     "query": "What is the per share merger consideration and what premium does it represent?",
     "query_type": "legal",
     "status": "passed",
-    "answer": "",
+    "answer": "I was unable to find sufficient relevant information in the data room to answer this question, even after refining the search. This may mean the relevant documents haven't been uploaded yet, or the question falls outside the scope of the available materials.\n\nSearch attempts: 3\nBest quality score achieved: 0.00",
     "confidence_score": 0.0,
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 2358.9999999967404,
+    "latency_ms": 29171.999999991385,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -133,7 +246,116 @@
       "90-day"
     ],
     "citation_match": false,
-    "agent_trace": []
+    "agent_trace": [
+      {
+        "agent": "query_intelligence",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "input_query": "What is the per share merger consideration and what premium does it represent?",
+        "output": {
+          "query_type": "financial",
+          "primary_intent": "Determine the per-share merger consideration price and calculate the acquisition premium over the target's historical share price.",
+          "extracted_entities": {
+            "companies": [
+              "Aurora",
+              "Vertex"
+            ],
+            "fiscal_years": [],
+            "financial_metrics": [
+              "per share merger consideration",
+              "acquisition premium"
+            ],
+            "legal_clause_types": [],
+            "dollar_thresholds": [],
+            "date_ranges": [],
+            "clause_ids": []
+          },
+          "metadata_filters": {
+            "fiscal_year": null,
+            "document_category": "financial",
+            "is_current_version": 1,
+            "currency": null
+          },
+          "requires_numerical_precision": true,
+          "requires_cross_document": false,
+          "document_scope": [
+            "financial"
+          ],
+          "query_expansions": [
+            "What is the offer price per share for the Aurora-Vertex merger?",
+            "Calculate the premium paid for Vertex shares in the Aurora acquisition.",
+            "What is the deal value per share and the associated market premium?"
+          ],
+          "reformulated_query": "What is the specific per-share merger consideration amount for the Aurora-Vertex deal, and what is the calculated percentage premium over the target company's pre-announcement share price?",
+          "ambiguities": [
+            "The reference date for the premium calculation (e.g., 30-day VWAP vs. closing price prior to announcement) is not specified."
+          ]
+        }
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 3203.0,
+        "dense_count": 15,
+        "reranked_count": 0
+      },
+      {
+        "agent": "financial_verifier",
+        "skipped": true,
+        "reason": "no_financial_chunks"
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "heuristic",
+        "score": 0.0
+      },
+      {
+        "agent": "query_rewriter",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "iteration": 1,
+        "rewritten_query": "Aurora Innovation Vertex merger agreement per share cash consideration and transaction premium calculation"
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 2969.0,
+        "dense_count": 15,
+        "reranked_count": 0
+      },
+      {
+        "agent": "financial_verifier",
+        "skipped": true,
+        "reason": "no_financial_chunks"
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "heuristic",
+        "score": 0.0
+      },
+      {
+        "agent": "query_rewriter",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "iteration": 2,
+        "rewritten_query": "Aurora Innovation acquisition of Vertex merger consideration per share price and premium over closing stock price"
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 3015.0,
+        "dense_count": 15,
+        "reranked_count": 0
+      },
+      {
+        "agent": "financial_verifier",
+        "skipped": true,
+        "reason": "no_financial_chunks"
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "heuristic",
+        "score": 0.0
+      },
+      {
+        "agent": "insufficient_context",
+        "force_refusal": true
+      }
+    ]
   },
   {
     "id": "legal_02",
@@ -145,7 +367,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 2360.000000015134,
+    "latency_ms": 8780.999999988126,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -169,7 +391,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 2202.999999979511,
+    "latency_ms": 8125.0,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -189,12 +411,12 @@
     "query": "What pending litigation does the company face?",
     "query_type": "legal",
     "status": "passed",
-    "answer": "",
+    "answer": "I was unable to find sufficient relevant information in the data room to answer this question, even after refining the search. This may mean the relevant documents haven't been uploaded yet, or the question falls outside the scope of the available materials.\n\nSearch attempts: 3\nBest quality score achieved: 0.30",
     "confidence_score": 0.0,
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 2265.00000001397,
+    "latency_ms": 22219.000000011874,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -205,7 +427,102 @@
       "Northern District of California"
     ],
     "citation_match": false,
-    "agent_trace": []
+    "agent_trace": [
+      {
+        "agent": "query_intelligence",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "input_query": "What pending litigation does the company face?",
+        "output": {
+          "query_type": "legal",
+          "primary_intent": "Identify all active or pending litigation matters involving the target company.",
+          "extracted_entities": {
+            "companies": [
+              "aurora_vertex"
+            ],
+            "fiscal_years": [],
+            "financial_metrics": [],
+            "legal_clause_types": [
+              "litigation",
+              "pending claims",
+              "legal disputes"
+            ],
+            "dollar_thresholds": [],
+            "date_ranges": [],
+            "clause_ids": []
+          },
+          "metadata_filters": {
+            "fiscal_year": null,
+            "document_category": "legal",
+            "is_current_version": 1,
+            "currency": null
+          },
+          "requires_numerical_precision": false,
+          "requires_cross_document": false,
+          "document_scope": [
+            "legal"
+          ],
+          "query_expansions": [
+            "list of active lawsuits against the company",
+            "pending legal proceedings and claims",
+            "summary of ongoing litigation matters"
+          ],
+          "reformulated_query": "Provide a summary of all pending litigation and active legal disputes involving the target company.",
+          "ambiguities": [
+            "The term 'pending litigation' may be interpreted differently depending on whether it includes threatened claims or only filed lawsuits."
+          ]
+        }
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 3313.0,
+        "dense_count": 23,
+        "reranked_count": 0
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "heuristic",
+        "score": 0.0
+      },
+      {
+        "agent": "query_rewriter",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "iteration": 1,
+        "rewritten_query": "List all material legal proceedings, pending litigation, regulatory investigations, and active lawsuits involving the target company or its subsidiaries."
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 5157.0,
+        "dense_count": 23,
+        "reranked_count": 0
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "heuristic",
+        "score": 0.0
+      },
+      {
+        "agent": "query_rewriter",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "iteration": 2,
+        "rewritten_query": "disclose all material legal proceedings, pending litigation, regulatory investigations, administrative actions, and threatened lawsuits involving the target company or its subsidiaries as detailed in the legal contingencies or litigation section of the financial reports."
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 5484.0,
+        "dense_count": 23,
+        "reranked_count": 1
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "llm",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "score": 0.3
+      },
+      {
+        "agent": "insufficient_context",
+        "force_refusal": true
+      }
+    ]
   },
   {
     "id": "legal_05",
@@ -217,7 +534,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 1859.9999999860302,
+    "latency_ms": 25405.999999988126,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -237,12 +554,12 @@
     "query": "Compare the three bidders \u2014 what were their offer ranges and certainty levels?",
     "query_type": "comparative",
     "status": "passed",
-    "answer": "",
+    "answer": "I was unable to find sufficient relevant information in the data room to answer this question, even after refining the search. This may mean the relevant documents haven't been uploaded yet, or the question falls outside the scope of the available materials.\n\nSearch attempts: 3\nBest quality score achieved: 0.00",
     "confidence_score": 0.0,
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 5125.0,
+    "latency_ms": 17375.0,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -260,19 +577,130 @@
       "LOW"
     ],
     "citation_match": false,
-    "agent_trace": []
+    "agent_trace": [
+      {
+        "agent": "query_intelligence",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "input_query": "Compare the three bidders \u2014 what were their offer ranges and certainty levels?",
+        "output": {
+          "query_type": "comparative",
+          "primary_intent": "Compare offer ranges and deal certainty levels across three bidders for the Aurora-Vertex deal.",
+          "extracted_entities": {
+            "companies": [
+              "Aurora",
+              "Vertex"
+            ],
+            "fiscal_years": [],
+            "financial_metrics": [
+              "offer range",
+              "certainty level"
+            ],
+            "legal_clause_types": [],
+            "dollar_thresholds": [],
+            "date_ranges": [],
+            "clause_ids": []
+          },
+          "metadata_filters": {
+            "fiscal_year": null,
+            "document_category": "financial",
+            "is_current_version": 1,
+            "currency": null
+          },
+          "requires_numerical_precision": true,
+          "requires_cross_document": true,
+          "document_scope": [
+            "financial",
+            "legal"
+          ],
+          "query_expansions": [
+            "What are the bid valuations and closing probability assessments for the three bidders?",
+            "Compare the financial offer ranges and deal certainty for the Aurora-Vertex acquisition bidders.",
+            "Summary of bidder offer price ranges and deal execution certainty."
+          ],
+          "reformulated_query": "Compare the financial offer ranges and deal certainty levels provided by the three bidders in the Aurora-Vertex 2024 transaction.",
+          "ambiguities": [
+            "The specific names of the three bidders are not provided in the query.",
+            "Certainty level is a qualitative metric and may require interpretation of deal terms or financing commitments."
+          ]
+        }
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 3453.0,
+        "dense_count": 15,
+        "reranked_count": 0
+      },
+      {
+        "agent": "financial_verifier",
+        "skipped": true,
+        "reason": "no_financial_chunks"
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "heuristic",
+        "score": 0.0
+      },
+      {
+        "agent": "query_rewriter",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "iteration": 1,
+        "rewritten_query": "Aurora-Vertex 2024 transaction bidder proposals: financial offer price ranges, valuation metrics, and deal certainty or closing conditions for each bidder."
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 3485.0,
+        "dense_count": 15,
+        "reranked_count": 0
+      },
+      {
+        "agent": "financial_verifier",
+        "skipped": true,
+        "reason": "no_financial_chunks"
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "heuristic",
+        "score": 0.0
+      },
+      {
+        "agent": "query_rewriter",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "iteration": 2,
+        "rewritten_query": "Aurora-Vertex 2024 M&A transaction: summary of final bids, offer price ranges, valuation multiples, and deal certainty assessments for all bidders."
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 3562.0,
+        "dense_count": 15,
+        "reranked_count": 0
+      },
+      {
+        "agent": "financial_verifier",
+        "skipped": true,
+        "reason": "no_financial_chunks"
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "heuristic",
+        "score": 0.0
+      },
+      {
+        "agent": "insufficient_context",
+        "force_refusal": true
+      }
+    ]
   },
   {
     "id": "comp_02",
     "query": "How do the different valuation methodologies compare?",
     "query_type": "comparative",
     "status": "passed",
-    "answer": "",
+    "answer": "I was unable to find sufficient relevant information in the data room to answer this question, even after refining the search. This may mean the relevant documents haven't been uploaded yet, or the question falls outside the scope of the available materials.\n\nSearch attempts: 3\nBest quality score achieved: 0.00",
     "confidence_score": 0.0,
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 2187.000000005355,
+    "latency_ms": 19875.0,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -288,7 +716,100 @@
       "Comparable"
     ],
     "citation_match": false,
-    "agent_trace": []
+    "agent_trace": [
+      {
+        "agent": "query_intelligence",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "input_query": "How do the different valuation methodologies compare?",
+        "output": {
+          "query_type": "comparative",
+          "primary_intent": "Compare the various valuation methodologies used in the Aurora-Vertex deal documentation.",
+          "extracted_entities": {
+            "companies": [
+              "Aurora",
+              "Vertex"
+            ],
+            "fiscal_years": [],
+            "financial_metrics": [
+              "valuation methodologies"
+            ],
+            "legal_clause_types": [],
+            "dollar_thresholds": [],
+            "date_ranges": [],
+            "clause_ids": []
+          },
+          "metadata_filters": {
+            "fiscal_year": null,
+            "document_category": "financial",
+            "is_current_version": 1,
+            "currency": null
+          },
+          "requires_numerical_precision": false,
+          "requires_cross_document": true,
+          "document_scope": [
+            "financial"
+          ],
+          "query_expansions": [
+            "What valuation models were used for the Aurora-Vertex transaction?",
+            "Compare DCF, precedent transactions, and comparable company analysis for Aurora and Vertex.",
+            "Summary of valuation approaches and assumptions in the deal documents."
+          ],
+          "reformulated_query": "Compare the valuation methodologies and underlying assumptions applied to the Aurora-Vertex deal.",
+          "ambiguities": [
+            "The query does not specify which valuation methodologies (e.g., DCF, multiples, LBO) are of interest."
+          ]
+        }
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 3484.0,
+        "dense_count": 15,
+        "reranked_count": 0
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "heuristic",
+        "score": 0.0
+      },
+      {
+        "agent": "query_rewriter",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "iteration": 1,
+        "rewritten_query": "What valuation methods were used in the Aurora-Vertex acquisition, including DCF, comparable company analysis, and precedent transactions, and what were the key financial assumptions for each?"
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 3609.0,
+        "dense_count": 15,
+        "reranked_count": 0
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "heuristic",
+        "score": 0.0
+      },
+      {
+        "agent": "query_rewriter",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "iteration": 2,
+        "rewritten_query": "Aurora-Vertex acquisition valuation methodology financial analysis DCF comparable company analysis precedent transactions assumptions"
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 3359.0,
+        "dense_count": 15,
+        "reranked_count": 0
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "heuristic",
+        "score": 0.0
+      },
+      {
+        "agent": "insufficient_context",
+        "force_refusal": true
+      }
+    ]
   },
   {
     "id": "comp_03",
@@ -300,7 +821,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 15219.000000011874,
+    "latency_ms": 8594.000000011874,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -323,7 +844,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 14750.0,
+    "latency_ms": 1953.0000000086147,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -350,7 +871,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 2046.9999999913853,
+    "latency_ms": 24218.99999998277,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -377,7 +898,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 4828.000000008615,
+    "latency_ms": 2094.0000000118744,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -397,12 +918,12 @@
     "query": "What indemnification exposure is tied to the financial statement representations, and how long do those representations survive?",
     "query_type": "multi_hop",
     "status": "passed",
-    "answer": "",
+    "answer": "I was unable to find sufficient relevant information in the data room to answer this question, even after refining the search. This may mean the relevant documents haven't been uploaded yet, or the question falls outside the scope of the available materials.\n\nSearch attempts: 3\nBest quality score achieved: 0.40",
     "confidence_score": 0.0,
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 4812.999999994645,
+    "latency_ms": 26625.0,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -414,7 +935,102 @@
       "36 months"
     ],
     "citation_match": false,
-    "agent_trace": []
+    "agent_trace": [
+      {
+        "agent": "query_intelligence",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "input_query": "What indemnification exposure is tied to the financial statement representations, and how long do those representations survive?",
+        "output": {
+          "query_type": "legal",
+          "primary_intent": "Identify indemnification obligations related to financial statement representations and determine the survival period for these specific representations.",
+          "extracted_entities": {
+            "companies": [],
+            "fiscal_years": [],
+            "financial_metrics": [],
+            "legal_clause_types": [
+              "indemnification",
+              "representations and warranties",
+              "survival period"
+            ],
+            "dollar_thresholds": [],
+            "date_ranges": [],
+            "clause_ids": []
+          },
+          "metadata_filters": {
+            "fiscal_year": null,
+            "document_category": "legal",
+            "is_current_version": 1,
+            "currency": null
+          },
+          "requires_numerical_precision": false,
+          "requires_cross_document": false,
+          "document_scope": [
+            "legal"
+          ],
+          "query_expansions": [
+            "What is the survival period for financial statement reps and warranties?",
+            "Indemnification liability for breach of financial representations",
+            "Survival duration of financial statement representations in the purchase agreement"
+          ],
+          "reformulated_query": "Identify the indemnification exposure associated with breaches of financial statement representations and the specific survival period defined for these representations in the definitive agreement.",
+          "ambiguities": [
+            "The term 'indemnification exposure' could refer to specific dollar caps, baskets, or the general scope of liability."
+          ]
+        }
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 4578.0,
+        "dense_count": 23,
+        "reranked_count": 1
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "llm",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "score": 0.2
+      },
+      {
+        "agent": "query_rewriter",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "iteration": 1,
+        "rewritten_query": "What are the specific indemnification provisions, including caps, baskets, and survival periods, applicable to breaches of financial statement representations in the definitive agreement? Provide the exact contractual language defining the survival duration and liability limitations for these specific representations."
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 5578.0,
+        "dense_count": 23,
+        "reranked_count": 1
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "llm",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "score": 0.2
+      },
+      {
+        "agent": "query_rewriter",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "iteration": 2,
+        "rewritten_query": "Extract the full text of the indemnification provisions related to breaches of financial statement representations, specifically identifying the survival period, the indemnity cap, and the basket or deductible threshold applicable to these representations in the definitive agreement."
+      },
+      {
+        "agent": "retrieval_executor",
+        "elapsed_ms": 5515.0,
+        "dense_count": 23,
+        "reranked_count": 3
+      },
+      {
+        "agent": "quality_assessor",
+        "method": "llm",
+        "model": "gemini/gemini-3.1-flash-lite",
+        "score": 0.4
+      },
+      {
+        "agent": "insufficient_context",
+        "force_refusal": true
+      }
+    ]
   },
   {
     "id": "mh_03",
@@ -426,7 +1042,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 2265.00000001397,
+    "latency_ms": 9250.0,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
@@ -450,7 +1066,7 @@
     "validation_status": "passed",
     "hallucination_flags": [],
     "citations": [],
-    "latency_ms": 3155.9999999881256,
+    "latency_ms": 2046.9999999913853,
     "recall_score": 0.0,
     "recalled_facts": [],
     "missing_facts": [
