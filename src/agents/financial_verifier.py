@@ -93,7 +93,7 @@ async def financial_verifier_node(state: AgentState) -> dict:
         system_prompt=FINANCIAL_VERIFIER_SYSTEM_PROMPT,
         user_prompt=user_prompt,
         temperature=0.0,
-        max_tokens=1500,
+        max_tokens=2000,
     )
 
     logger.info(
@@ -110,7 +110,7 @@ async def financial_verifier_node(state: AgentState) -> dict:
         "agent_trace": [
             {
                 "agent": "financial_verifier",
-                "model": "ollama/qwen2.5:14b-instruct-q4_k_m",
+                "model": "ollama/qwen2.5:14b",
                 "inconsistencies": len(result.get("inconsistencies", [])),
             }
         ],

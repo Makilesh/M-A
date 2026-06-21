@@ -67,7 +67,7 @@ async def hallucination_validator_node(state: AgentState) -> dict:
         system_prompt=HALLUCINATION_VALIDATOR_SYSTEM_PROMPT,
         user_prompt=user_prompt,
         temperature=0.0,
-        max_tokens=1000,
+        max_tokens=2000,
     )
 
     validation_status = result.get("validation_status", "warning")
@@ -91,7 +91,7 @@ async def hallucination_validator_node(state: AgentState) -> dict:
         "agent_trace": [
             {
                 "agent": "hallucination_validator",
-                "model": "ollama/qwen2.5:14b-instruct-q4_k_m",
+                "model": "ollama/qwen2.5:14b",
                 "validation_status": validation_status,
                 "confidence_score": confidence,
                 "flags_count": len(flags),
