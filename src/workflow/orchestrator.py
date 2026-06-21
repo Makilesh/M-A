@@ -20,6 +20,7 @@ import uuid
 
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+from langgraph.checkpoint.memory import MemorySaver
 
 from src.workflow.state_definitions import AgentState
 from src.workflow.conditional_edges import (
@@ -175,11 +176,18 @@ async def get_compiled_graph(postgres_url: str):
         Compiled LangGraph application ready for ainvoke().
     """
     graph = build_graph()
-    checkpointer = AsyncPostgresSaver.from_conn_string(postgres_url)
-    await checkpointer.setup()
-
-    app = graph.compile(checkpointer=checkpointer)
-    logger.info("LangGraph state machine compiled with PostgresSaver")
+    try:
+        checkpointer = AsyncPostgresSaver.from_conn_string(postgres_url)
+        await checkpointer.setup()
+        app = graph.compile(checkpointer=checkpointer)
+        logger.info("LangGraph state machine compiled with PostgresSaver")
+    except Exception as e:
+        logger.warning(
+            f"Failed to initialize PostgresSaver: {e}. Falling back to MemorySaver."
+        )
+        checkpointer = MemorySaver()
+        app = graph.compile(checkpointer=checkpointer)
+        logger.info("LangGraph state machine compiled with MemorySaver")
     return app
 
 
