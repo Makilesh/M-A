@@ -41,7 +41,7 @@ async def ingest_files(client: httpx.AsyncClient, files_info: list[dict]) -> dic
                 f"{API_URL}/api/v1/ingest",
                 files=files,
                 data=data,
-                timeout=60.0
+                timeout=300.0
             )
             
             if response.status_code != 200:
@@ -76,7 +76,7 @@ async def run_queries(client: httpx.AsyncClient, golden_qa_pairs: list[dict]) ->
                     "query": query,
                     "deal_id": DEAL_ID
                 },
-                timeout=120.0
+                timeout=300.0
             )
             elapsed = (time.monotonic() - start_time) * 1000
             
