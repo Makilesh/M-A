@@ -199,7 +199,7 @@ async def call_local_agent(
     return await call_structured_agent(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        model="ollama/qwen2.5:14b-instruct-q4_k_m",
+        model="ollama/qwen2.5:14b",
         temperature=temperature,
         max_tokens=max_tokens,
     )

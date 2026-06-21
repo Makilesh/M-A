@@ -205,12 +205,12 @@ class BudgetTracker:
         # Read-only check to avoid rate-limiter waiting if budget is already exhausted
         if not await self._budget_available("agent_workhorse"):
             logger.info("Agent budget exhausted, falling back to Ollama")
-            return "ollama/qwen2.5:14b-instruct-q4_k_m"
+            return "ollama/qwen2.5:14b"
 
         await self._get_rate_limiter("agent_workhorse").acquire()
         if await self._try_consume("agent_workhorse"):
             return "gemini/gemini-3.1-flash-lite"  # ⚠ VERIFY STRING
-        return "ollama/qwen2.5:14b-instruct-q4_k_m"
+        return "ollama/qwen2.5:14b"
 
     async def get_budget_status(self) -> dict:
         """
