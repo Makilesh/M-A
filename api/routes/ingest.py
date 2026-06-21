@@ -16,7 +16,7 @@ logger = setup_logger(__name__)
 router = APIRouter()
 
 # Supported file types
-SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".pptx", ".xlsx", ".xls"}
+SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".pptx", ".xlsx", ".xls", ".txt"}
 
 
 @router.post("/ingest", response_model=IngestResponse)
@@ -64,7 +64,7 @@ async def ingest_document(
         extra={
             "doc_id": doc_id,
             "deal_id": deal_id,
-            "filename": file.filename,
+            "file_name": file.filename,
             "extension": extension,
         },
     )
@@ -104,7 +104,7 @@ async def ingest_document(
                 "event": "document_ingested",
                 "doc_id": doc_id,
                 "deal_id": deal_id,
-                "filename": file.filename,
+                "file_name": file.filename,
                 "category": document_category,
                 "chunks_created": chunks_created,
             },
@@ -208,6 +208,24 @@ async def _process_and_index(
         processor = ExcelProcessor()
         excel_sheets = processor.process(file_path, doc_id)
         sections = processor.to_chunks(excel_sheets)
+
+    elif extension == ".txt":
+        with open(file_path, "r", encoding="utf-8") as f:
+            text = f.read()
+        paragraphs = text.split("\n\n")
+        for i, para in enumerate(paragraphs):
+            para = para.strip()
+            if not para:
+                continue
+            lines = para.split("\n")
+            is_table = "|" in para or ("$" in para and "------" in text[max(0, text.index(para)-100):text.index(para)])
+            sections.append({
+                "text": para,
+                "section_heading": lines[0][:100] if len(lines) > 0 else "",
+                "page_number": i // 10 + 1,
+                "section_type": "table" if is_table else "text",
+                "is_table": is_table,
+            })
 
     if not sections:
         return 0

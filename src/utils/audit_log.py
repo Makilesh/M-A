@@ -86,7 +86,7 @@ def log_ingestion_event(
         "event_type": "ingestion",
         "deal_id": deal_id,
         "doc_id": doc_id,
-        "filename": filename,
+        "file_name": filename,
         "document_category": document_category,
         "chunks_created": chunks_created,
         "status": status,
