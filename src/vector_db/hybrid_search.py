@@ -17,8 +17,6 @@ from qdrant_client import AsyncQdrantClient
 from qdrant_client.models import (
     SparseVector,
     ScoredPoint,
-    NamedVector,
-    NamedSparseVector,
     Filter,
     FieldCondition,
     MatchValue,
@@ -178,23 +176,27 @@ async def hybrid_search(
 
     start = time.monotonic()
 
-    dense_task = client.search(
+    dense_task = client.query_points(
         collection_name=COLLECTION_NAME,
-        query_vector=NamedVector(name="dense", vector=query_vector),
+        query=query_vector,
+        using="dense",
         query_filter=qdrant_filter,
         limit=top_k_dense,
         search_params=QUANTIZED_SEARCH_PARAMS,  # rescore=True, oversampling=2.0
         with_payload=True,
     )
-    sparse_task = client.search(
+    sparse_task = client.query_points(
         collection_name=COLLECTION_NAME,
-        query_vector=NamedSparseVector(name="sparse", vector=query_sparse),
+        query=query_sparse,
+        using="sparse",
         query_filter=qdrant_filter,
         limit=top_k_sparse,
         with_payload=True,
     )
 
-    dense_results, sparse_results = await asyncio.gather(dense_task, sparse_task)
+    dense_response, sparse_response = await asyncio.gather(dense_task, sparse_task)
+    dense_results = dense_response.points
+    sparse_results = sparse_response.points
 
     elapsed_ms = (time.monotonic() - start) * 1000
     logger.info(

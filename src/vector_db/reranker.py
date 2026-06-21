@@ -80,7 +80,7 @@ def _get_reranker_model() -> CrossEncoder:
             "BAAI/bge-reranker-v2-m3",
             max_length=1024,
             device=device,
-            activation_fct=torch.nn.Sigmoid(),  # ← MANDATORY for [0,1] scores
+            default_activation_function=torch.nn.Sigmoid(),  # ← MANDATORY for [0,1] scores
         )
         logger.info(f"BAAI/bge-reranker-v2-m3 loaded successfully on {device.upper()} (sigmoid activated)")
     return _reranker_model

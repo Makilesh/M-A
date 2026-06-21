@@ -190,7 +190,7 @@ def run_pipeline_validation():
     pii_detector = PIIDetector()
     total_pii = 0
     for name, chunks in all_semantic.items():
-        pii_count = sum(1 for c in chunks if pii_detector.detect(c.text))
+        pii_count = sum(1 for c in chunks if pii_detector.detect(c.text).contains_pii == 1)
         total_pii += pii_count
         print(f"   - {name}: {pii_count}/{len(chunks)} chunks flagged PII")
         results["pii"][name] = {"flagged": pii_count, "total": len(chunks)}

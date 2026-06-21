@@ -42,18 +42,39 @@ def get_qdrant_client() -> AsyncQdrantClient:
     """
     global _qdrant_client
     if _qdrant_client is None:
+        from urllib.parse import urlparse
+        import socket
+
         qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
-        grpc_port = int(os.getenv("QDRANT_GRPC_PORT", "6334"))
-        logger.info(
-            "Initializing AsyncQdrantClient singleton",
-            extra={"qdrant_url": qdrant_url, "grpc_port": grpc_port},
-        )
-        _qdrant_client = AsyncQdrantClient(
-            url=qdrant_url,
-            grpc_port=grpc_port,
-            prefer_grpc=True,  # gRPC is faster for batch operations
-            timeout=30,
-        )
+        parsed = urlparse(qdrant_url)
+        host = parsed.hostname or "localhost"
+        port = parsed.port or 6333
+
+        server_reachable = False
+        try:
+            with socket.create_connection((host, port), timeout=1.0):
+                server_reachable = True
+        except OSError:
+            pass
+
+        if server_reachable:
+            grpc_port = int(os.getenv("QDRANT_GRPC_PORT", "6334"))
+            logger.info(
+                "Initializing AsyncQdrantClient singleton (Server Mode)",
+                extra={"qdrant_url": qdrant_url, "grpc_port": grpc_port},
+            )
+            _qdrant_client = AsyncQdrantClient(
+                url=qdrant_url,
+                grpc_port=grpc_port,
+                prefer_grpc=True,  # gRPC is faster for batch operations
+                timeout=30,
+            )
+        else:
+            local_path = "./qdrant_local_db"
+            logger.warning(
+                f"Qdrant server at {qdrant_url} is unreachable. Falling back to local storage mode at {local_path}."
+            )
+            _qdrant_client = AsyncQdrantClient(path=local_path)
     return _qdrant_client
 
 

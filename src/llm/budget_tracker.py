@@ -107,10 +107,18 @@ class BudgetTracker:
                     )
                 logger.info("Initializing BudgetTracker singleton")
                 instance = cls.__new__(cls)
-                instance._pool = await asyncpg.create_pool(
-                    postgres_url, min_size=2, max_size=5
-                )
-                await instance._ensure_schema()
+                try:
+                    instance._pool = await asyncpg.create_pool(
+                        postgres_url, min_size=2, max_size=5
+                    )
+                    instance._is_mock = False
+                    await instance._ensure_schema()
+                except Exception as e:
+                    logger.warning(
+                        f"Failed to initialize Postgres pool: {e}. Falling back to In-Memory Budget Tracking."
+                    )
+                    instance._is_mock = True
+                    instance._mock_budgets = {}
                 cls._instance = instance
                 logger.info("BudgetTracker initialized successfully")
         return cls._instance
@@ -123,6 +131,8 @@ class BudgetTracker:
         Raises:
             asyncpg.PostgresError: If schema creation fails.
         """
+        if getattr(self, "_is_mock", False):
+            return
         async with self._pool.acquire() as conn:
             await conn.execute("""
                 CREATE TABLE IF NOT EXISTS api_budget (
@@ -255,6 +265,22 @@ class BudgetTracker:
             True if budget was consumed, False if exhausted.
         """
         today = datetime.now(timezone.utc).date().isoformat()
+        if getattr(self, "_is_mock", False):
+            if model_key not in self._mock_budgets:
+                self._mock_budgets[model_key] = {"used_today": 0, "reset_date": today}
+            b = self._mock_budgets[model_key]
+            if b["reset_date"] < today:
+                b["used_today"] = 0
+                b["reset_date"] = today
+            if b["used_today"] < self.DAILY_LIMITS[model_key]:
+                b["used_today"] += 1
+                logger.info(
+                    f"Budget consumed (local mock): {model_key} ({b['used_today']}/{self.DAILY_LIMITS[model_key]})"
+                )
+                return True
+            logger.warning(f"Budget exhausted (local mock) for model {model_key}")
+            return False
+
         async with self._pool.acquire() as conn:
             # Reset if new day (idempotent)
             await conn.execute(
@@ -296,6 +322,18 @@ class BudgetTracker:
         Returns:
             ModelBudget dataclass with used_today and reset_date.
         """
+        today = datetime.now(timezone.utc).date().isoformat()
+        if getattr(self, "_is_mock", False):
+            if model_key not in self._mock_budgets:
+                self._mock_budgets[model_key] = {"used_today": 0, "reset_date": today}
+            b = self._mock_budgets[model_key]
+            return ModelBudget(
+                model_key=model_key,
+                daily_limit=self.DAILY_LIMITS[model_key],
+                used_today=b["used_today"],
+                reset_date=b["reset_date"],
+            )
+
         async with self._pool.acquire() as conn:
             row = await conn.fetchrow(
                 "SELECT model_key, used_today, reset_date FROM api_budget WHERE model_key = $1",
@@ -333,7 +371,8 @@ class BudgetTracker:
         Raises:
             RuntimeError: If no instance exists.
         """
-        if cls._instance is not None and hasattr(cls._instance, "_pool"):
-            await cls._instance._pool.close()
-            logger.info("BudgetTracker connection pool closed")
+        if cls._instance is not None:
+            if not getattr(cls._instance, "_is_mock", False) and hasattr(cls._instance, "_pool"):
+                await cls._instance._pool.close()
+                logger.info("BudgetTracker connection pool closed")
             cls._instance = None

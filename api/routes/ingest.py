@@ -257,7 +257,7 @@ async def _process_and_index(
 
     for i, chunk in enumerate(semantic_chunks):
         chunk_id = f"{deal_id}_{doc_id}_{i:04d}"
-        contains_pii = 1 if pii_detector.detect(chunk.text) else 0
+        contains_pii = pii_detector.detect(chunk.text).contains_pii
 
         # Compute sparse BM25 vector
         sparse_vector = await loop.run_in_executor(
