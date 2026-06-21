@@ -4,9 +4,9 @@
 
 models:
   synthesis_primary:
-    model: "gemini/gemini-3.5-flash"         # ⚠ VERIFY — reserved for synthesis only
-    daily_limit: 18                           # Leave 2 RPD buffer from 20 RPD cap
-    rpm_limit: 5
+    model: "gemini/gemini-3.1-flash-lite"    # Swapped from 3.5-flash to 3.1-flash-lite to avoid daily quota limit (20 RPD)
+    daily_limit: 480
+    rpm_limit: 15
     temperature: 0.1
     max_tokens: 3000
 
@@ -18,7 +18,7 @@ models:
     max_tokens: 800
 
   local_fallback:
-    model: "ollama/qwen2.5:14b-instruct-q4_k_m"
+    model: "ollama/qwen2.5:14b"
     safe_fallback: "ollama/qwen2.5:7b-instruct-q4_k_m"
     temperature: 0.0
     max_tokens: 1500
