@@ -11,9 +11,8 @@ venv/
 *.log
 data/sample_deal/*
 !data/sample_deal/.gitkeep
-
-p4.md
+ppp.md
 qdrant_local_db/
 qdrant_test_db/
 qdrant_test_db_v2/
-docker_data/
+docker_data/
