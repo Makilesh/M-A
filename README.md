@@ -266,6 +266,6 @@ Licensed under the [MIT License](LICENSE).
 
 ## 👤 Author
 
-**[Your Name]** — [LinkedIn](#https://www.linkedin.com/in/makilesh/) · [GitHub](#https://github.com/makilesh) · [Portfolio](#https://makilesh.github.io/)
+**[Makilesh M]** — [LinkedIn](https://www.linkedin.com/in/makilesh/) · [GitHub](https://github.com/makilesh) · [Portfolio](https://makilesh.github.io/)
 
 *Built as a self-directed project to explore production patterns in agentic RAG systems for high-stakes, accuracy-critical domains.*
