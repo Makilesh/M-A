@@ -4,7 +4,7 @@
 [![Vector Database](https://img.shields.io/badge/vector__db-Qdrant-red.svg)](https://qdrant.tech/)
 [![Orchestration](https://img.shields.io/badge/orchestration-LangGraph-purple.svg)](https://github.com/langchain-ai/langgraph)
 [![Tests](https://img.shields.io/badge/tests-76%20passed-green.svg)]()
-[![License](https://img.shields.io/badge/license-Proprietary-gray.svg)]()
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 A production-grade, hardware-aware **Hybrid Agentic RAG (Retrieval-Augmented Generation) Engine** designed to automate due diligence workflows in mergers and acquisitions (M&A). The system ingests multi-format data rooms (financials, legal contracts, board decks) and performs complex reasoning across hundreds of pages with **strict financial verification, hallucination guards, and traceable citations**.
 
@@ -12,20 +12,19 @@ A production-grade, hardware-aware **Hybrid Agentic RAG (Retrieval-Augmented Gen
 
 ## 🏗️ Multi-Agent Architecture
 
-The engine is orchestrated using a **LangGraph StateGraph** featuring **8 specialized agents** that collaborate through a typed state and persist data via a **PostgresSaver checkpointer** (keyed by `deal_id` and `session_id`).
+The engine is orchestrated using a **LangGraph StateGraph** featuring **7 specialized graph agents** that collaborate through a typed state and persist data via a **PostgresSaver checkpointer** (keyed by `deal_id` and `session_id`). Deterministic routing and configuration strategies are embedded directly within the retrieval executor to eliminate unnecessary graph hops and LLM overhead.
 
 ```mermaid
 graph TD
     A["FastAPI /api/v1/query"] --> B["LangGraph Orchestrator"]
     B --> C["Agent 1: Query Intelligence<br/>(Intent & Extraction)"]
-    C --> D["Agent 2: Retrieval Strategy<br/>(Deterministic Routing)"]
-    D --> E["Agent 3: Retrieval Executor<br/>(Qdrant Hybrid Search)"]
+    C --> E["Agent 3: Retrieval Executor<br/>(Deterministic Strategy & Qdrant Search)"]
     E --> F{"Financial Query?"}
     F -->|Yes| G["Agent 4: Financial Verifier<br/>(Numerical Consistency Checks)"]
     F -->|No| H["Agent 5: Quality Assessor<br/>(Heuristic & LLM Evaluation)"]
     G --> H
     H --> I{"Quality Score?"}
-    I -->|"Pass (Score ≥ 0.4)"| J["Agent 7: Answer Synthesizer<br/>(Structured Markdown Generation)"]
+    I -->|"Pass (Score ≥ 0.3)"| J["Agent 7: Answer Synthesizer<br/>(Structured Markdown Generation)"]
     I -->|"Fail & Attempt < 2"| K["Agent 6: Query Rewriter<br/>(Query Expansion & Tuning)"]
     I -->|"Fail & Attempt = 2"| L["Forced Refusal<br/>(Insufficient Context)"]
     K --> E
@@ -36,9 +35,9 @@ graph TD
     L --> O
 ```
 
-### The 8 Specialized Agents:
+### The Specialized Agents & Functions:
 1. **Query Intelligence (Agent 1)**: Classifies user intent, identifies required financial precision, and extracts metadata filters.
-2. **Retrieval Strategy (Agent 2)**: Dynamically defines search weights and target categories.
+2. **Retrieval Strategy (Agent 2)**: A deterministic helper function within the executor that dynamically defines search weights and target categories based on intent signals, ensuring zero LLM overhead.
 3. **Retrieval Executor (Agent 3)**: Queries Qdrant using hybrid search and merges results via Reciprocal Rank Fusion (RRF).
 4. **Financial Verifier (Agent 4)**: Normalizes numbers (units, currencies) and cross-checks financial claims against raw tables.
 5. **Quality Assessor (Agent 5)**: Scores context quality using a hybrid heuristic-LLM checker.
@@ -48,14 +47,41 @@ graph TD
 
 ---
 
+## ⚡ Engineering M&A Due Diligence Challenges 
+
+M&A due diligence involves reasoning over massive, multi-format data rooms (e.g., 1000+ page PDFs, financial spreadsheets, legal contracts) where a wrong number is an absolute failure mode, not a graceful degradation. The engine solves these challenges through the following mechanisms:
+
+### 1. Memory-Efficient PDF Streaming
+Loading 1000+ page PDFs into memory causes Out-Of-Memory (OOM) failures. The ingestion pipeline uses **PyMuPDF (fitz)** to stream layout blocks and text page-by-page. It keeps the memory footprint flat regardless of document length.
+
+### 2. Multi-Page Table Stitching
+Financial statements and cap tables routinely span page breaks. Naive chunking slices these tables mid-row, destroying structure. The **MultiPageTableStitcher** extracts tables page-by-page using `pdfplumber`, fingerprints their column structures (column counts and header similarities), and automatically stitches continuation tables across page boundaries into a single markdown table section with matching page-range metadata.
+
+### 3. Cell-Level Numeric Fidelity & 4-Representation Design
+Financial queries require exact numbers. The engine processes tables into **4 concurrent representations** sharing a single `table_id`:
+- **Narrative**: A text description of key items for semantic dense matching.
+- **Row-by-Row**: Key-value pairs for precise cell lookup.
+- **Metrics Summary**: Deterministic pandas-computed financial metrics (YoY growth, CAGR, margins) with explicit citation chains, preventing LLM arithmetic errors.
+- **Markdown**: A clean markdown grid for answer generation.
+
+If retrieval finds *any* of these representations, a table-id lookup automatically pulls all 4 sibling chunks from Qdrant. The synthesizer receives the exact markdown grid and verified computed metrics, preventing LLM hallucinations.
+
+### 4. Hierarchical Parent-Child Context Expansion
+Retrieving small, high-density chunks is optimal for search relevance, but lacks surrounding context. The engine retrieves 512-token semantic chunks but automatically swaps them for their larger **2048-token parent chunks** (from a dedicated parent collection) before synthesis. This provides the LLM with the full context (such as definitions or footnotes) without fragmenting the retrieval.
+
+### 5. Layout-Aware Statistical Heading Detection
+Instead of hardcoded formatting rules, headings are identified using per-page statistical font-size distribution (any text block with font size > page median * 1.2 is classified as a heading), maintaining hierarchical lineage across diverse document layouts.
+
+---
+
 ## 🚀 Key Features & Advanced RAG Strategies
 
-* **Three-Tier Chunking**: Documents undergo structural parsing, followed by semantic chunking (leveraging layout hierarchy) and custom tables/metrics preservation to avoid fragmentation.
+* **Three-Tier Chunking**: Documents undergo structural parsing, followed by semantic chunking (sentence-boundary aware with 10% overlap) and custom tables/metrics preservation to avoid fragmentation.
 * **Hybrid Dense-Sparse Search**: Merges vector search (**BAAI/bge-m3**, 1024-dim) with sparse lexical search (**FastEmbed BM25**) in a unified Qdrant database.
 * **Reciprocal Rank Fusion (RRF)**: Custom implementation de-duplicates overlap and merges dense and sparse scores into a unified relevance list.
 * **Cross-Encoder Reranking**: Utilizes **BAAI/bge-reranker-v2-m3** for cross-attention query-passage scoring, applying a sigmoid-activation map to normalize scores.
 * **Metadata & Version Control**: Automatically flags superseded document versions and traces information lineage.
-* **PII & Risk dashboards**: Automatically screens for PII during ingestion and populates an interactive risk signal dashboard for legal items (e.g. change of control, material adverse change).
+* **PII & Risk Dashboards**: Screen for PII during ingestion and populate risk signals.
 * **Token-Level Budget Tracking**: Features a Postgres-backed `BudgetTracker` enforcing per-model daily limits and RPM rate limits to keep API consumption under tight guardrails.
 
 ---
@@ -79,7 +105,7 @@ graph TD
 
 ### 1. VRAM & Hardware Budgeting (12GB Constraints)
 * **Problem**: Loading embedding models, cross-encoder rerankers, and a 14B local LLM concurrently would cause CUDA Out-of-Memory (OOM) failures.
-* **Solution**: Implemented a dynamic caching strategy. PyTorch runs on separate CUDA streams, and Ollama is configured with a 60-minute keep-alive. If memory limits are hit, the system automatically runs a zero-keep-alive unload policy or drops to Qwen2.5-7B-instruct-Q4_K_M.
+* **Solution**: Implemented separate `ThreadPoolExecutor` pools for embedding and reranking to prevent concurrent execution starvation, running them asynchronously in non-blocking wrappers via PyTorch/CUDA.
 
 ### 2. JSON Mode Generation Truncation
 * **Problem**: The local Ollama instance default context size (2048 tokens) was truncating JSON outputs under long evaluations, breaking state transitions.
@@ -94,9 +120,9 @@ graph TD
 ## ⚡ Quick Start
 
 ### 1. Prerequisites
-Ensure you have Docker and Python 3.12+ installed. 
+Ensure you have Docker and Python 3.12+ installed.
 
-### 2. Local Setup
+### 2. Setup Env & Packages
 ```bash
 # Clone the repository and configure environment variables
 cp .env.example .env
@@ -109,22 +135,38 @@ pip install torch --index-url https://download.pytorch.org/whl/cu124
 pip install -r requirements.txt
 ```
 
-### 3. Infrastructure & Databases
-Start Qdrant and Postgres databases:
+### 3. Local Ollama Configuration (Headless)
+Start the local Ollama server and pull the validation model:
 ```bash
-docker compose up -d
-```
-Start Ollama and fetch the local validation model:
-```bash
-ollama run qwen2.5:14b
+# Start Ollama service (if not already running as a daemon)
+ollama serve
+
+# Fetch the local validation model
+ollama pull qwen2.5:14b
 ```
 
-### 4. Running the Application
+### 4. Choose Deployment Path
+
+#### Option A: Fully Containerized Stack (Recommended for Production/Evaluation)
+Run the entire system (databases, API backend, and Streamlit frontend UI) inside Docker:
 ```bash
-# Run the FastAPI backend server
+# Spin up all services
+docker compose up -d
+
+# Access the Streamlit dashboard: http://localhost:8501
+# Access the FastAPI docs: http://localhost:8000/docs
+```
+
+#### Option B: Local Development Stack (Recommended for Development/Fast Reload)
+Run only the databases in Docker and run the application services locally on your host:
+```bash
+# Spin up only PostgreSQL and Qdrant database services
+docker compose up postgres qdrant -d
+
+# Start the FastAPI backend server (in a new terminal window)
 uvicorn api.main:app --reload
 
-# Launch the Streamlit frontend dashboard (separate terminal)
+# Start the Streamlit frontend dashboard (in a separate terminal window)
 streamlit run app/streamlit_app.py
 ```
 
@@ -141,7 +183,7 @@ python tests/run_end_to_end_validation.py
 
 ## 📊 Verification & Validation Results
 
-The pipeline has been thoroughly verified using a **synthetic deal room** comprising financial statements, merger agreements, and board slide decks. The end-to-end RAG evaluations are tracked in **[RESULTS.md](file:///d:/GEN%20AI/M&A/RESULTS.md)**.
+The pipeline has been thoroughly verified using a **synthetic deal room** comprising financial statements, merger agreements, and board slide decks. The end-to-end RAG evaluations are tracked in **[RESULTS.md](RESULTS.md)**.
 
 * **Test Pass Rate**: 100% (76/76 unit & integration tests passing).
 * **E2E Validation Rate**: 100% (19/19 queries successfully completed).
@@ -153,4 +195,4 @@ The pipeline has been thoroughly verified using a **synthetic deal room** compri
 
 ## 📄 License
 
-Proprietary — all rights reserved.
+This project is licensed under the [MIT License](LICENSE).
